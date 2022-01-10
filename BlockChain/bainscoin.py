@@ -74,12 +74,27 @@ class Blockchain:
         max_length = length(self.chain)
         for nodes in network:
             response = requests.get(f'http://{node}/get_chain')
-
+            if response.status_code = 200:
+                length = response.json()['length']
+                chain = response.json()['chain']
+                if length>max_length and self.is_chain_valid(chain):
+                    max_length = length
+                    longest_chain = chain
+        if longest_chain:
+            self.chain = longest_chain
+            return True
+        return False
 
 # Part 2 - Mining our Blockchain using Postman
 
 # Creating a Web App
 app = Flask(__name__)
+
+#creating an adress for a node on port 2000 -- to start the blockchain
+# for creating payouts to the miner whenever he mines a block
+
+node_address = str(uuid4()).replace('-','')s
+
 
 # Creating a Blockchain
 bainschain = Blockchain()
@@ -91,13 +106,26 @@ def mine_block():
     previous_proof = previous_block['proof']
     proof = bainschain.proof_of_work(previous_proof)
     previous_hash = bainschain.hash(previous_block)
+    bainschain.add_transaction(sender = node_address, reciever = 'bains', amt = 10)
     block = bainschain.create_block(proof, previous_hash)
     response = {'message': 'Congratulations, you just mined a block!',
                 'index': block['index'],
                 'timestamp': block['timestamp'],
                 'proof': block['proof'],
-                'previous_hash': block['previous_hash']}
+                'previous_hash': block['previous_hash']
+                'transactions': block['transactions']}
     return jsonify(response), 200
+
+#adding a transaction to the blockchain to be mined
+@app.route('/add_transaction', methods = ['POST'])
+def add_transaction():
+    json = request.get_json()
+    transaction_keys = {'sender','reciever','amt'}
+    if not all(key in json for keys in transaction_keys):
+        return 'not all elements of the transaction are present', 400
+    index = bainchain.add_transaction(json['sender'], json['reciever'], json['amt'])
+    response = {'message': f'The transanction is successful and recievd in the block {index}'}
+    return jsonify(response), 201
 
 # Getting the full Blockchain
 @app.route('/get_chain', methods = ['GET'])
