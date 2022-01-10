@@ -61,8 +61,8 @@ class Blockchain:
 
     def add_transaction(self, sender,reciever,amt):
         self.transactions.append({'sender':sender,'reciever':reciever,'amt':amt})
-        index = self.get_previous_block['index']+1
-        return index
+        previous_block = self.get_previous_block()
+        return previous_block['index'] + 1
 
     def add_node(self, address):
         parsed_adress = urlparse(address)
@@ -71,10 +71,10 @@ class Blockchain:
     def replace_chain(self):
         network = self.nodes
         longest_chain = None
-        max_length = length(self.chain)
+        max_length = len(self.chain)
         for nodes in network:
             response = requests.get(f'http://{node}/get_chain')
-            if response.status_code = 200:
+            if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
                 if length>max_length and self.is_chain_valid(chain):
@@ -93,7 +93,7 @@ app = Flask(__name__)
 #creating an adress for a node on port 2000 -- to start the blockchain
 # for creating payouts to the miner whenever he mines a block
 
-node_address = str(uuid4()).replace('-','')s
+node_address = str(uuid4()).replace('-','')
 
 
 # Creating a Blockchain
@@ -106,13 +106,13 @@ def mine_block():
     previous_proof = previous_block['proof']
     proof = bainschain.proof_of_work(previous_proof)
     previous_hash = bainschain.hash(previous_block)
-    bainschain.add_transaction(sender = node_address, reciever = 'bains', amt = 10)
+    bainschain.add_transaction(sender = node_address, reciever = 'Rahul', amt = 10)
     block = bainschain.create_block(proof, previous_hash)
     response = {'message': 'Congratulations, you just mined a block!',
                 'index': block['index'],
                 'timestamp': block['timestamp'],
                 'proof': block['proof'],
-                'previous_hash': block['previous_hash']
+                'previous_hash': block['previous_hash'],
                 'transactions': block['transactions']}
     return jsonify(response), 200
 
@@ -149,15 +149,28 @@ def is_valid():
 @app.route('/add_nodes', methods = ['POST'])
 def add_nodes():
     json = request.get_json()
-    nodes = json.get_json('nodes')
+    nodes = json.get('nodes')
     if nodes is None:
         return "no node", 401
     for node in nodes:
         bainschain.add_node(node)
-    response = ['message':'The nodes are successfully added. The total nodes are :',
-                'total nodes': list(bainschain.nodes)]
+    response = {'message':'The nodes are successfully added. The total nodes are :',
+                'total nodes': list(bainschain.nodes)}
     return jsonify(response), 201
+
+
+@app.route('/replace_chain', methods = ['GET'])
+def replace_chain():
+    is_chain_replaced = bainschain.replace_chain()
+    if is_chain_replaced:
+        response = {'message': 'Chain replaced',
+                    'new chain': bainschain.chain}
+    else:
+        response = {'message': 'All Good, nothing changed',
+                    'new chain': bainschain.chain}
+    return jsonify(response), 200
+
  
 
 # Running the app
-app.run(host = '0.0.0.0', port = 2000)
+app.run(host = '0.0.0.0', port = 2001)
