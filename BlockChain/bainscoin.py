@@ -146,7 +146,18 @@ def is_valid():
 
 # here we will decentralise the blockchain to nodes
 
-
+@app.route('/add_nodes', methods = ['POST'])
+def add_nodes():
+    json = request.get_json()
+    nodes = json.get_json('nodes')
+    if nodes is None:
+        return "no node", 401
+    for node in nodes:
+        bainschain.add_node(node)
+    response = ['message':'The nodes are successfully added. The total nodes are :',
+                'total nodes': list(bainschain.nodes)]
+    return jsonify(response), 201
+ 
 
 # Running the app
 app.run(host = '0.0.0.0', port = 2000)
