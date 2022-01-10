@@ -157,7 +157,21 @@ def add_nodes():
     response = ['message':'The nodes are successfully added. The total nodes are :',
                 'total nodes': list(bainschain.nodes)]
     return jsonify(response), 201
- 
+
+#replace chain for consensus
+@app.route('/replace_chain', methods = ['GET'])
+def replace_chain():
+    is_chain_replaced = bainschain.replace_chain()
+    if is_chain_replaced:
+        response = {'message': 'Chain replaced',
+                    'new chain': bainschain.chain}
+    else:
+        response = {'message': 'All Good, nothing changed'
+                    'new chain': bainschain.chain}
+    return jsonify(response), 200
+
+
+
 
 # Running the app
 app.run(host = '0.0.0.0', port = 2000)
