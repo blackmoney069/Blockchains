@@ -17,9 +17,9 @@ The space can be used to add port number for various nodes on the blockchain.
 
 
 For the demo we have used:
-PORT 2001 - Rahul (node_2001)
-PORT 2002 - Sachin (node_2002)
-PORT 2003 - Bains (miner in this case) (node_2003)
+- PORT 2001 - Rahul (node_2001)
+- PORT 2002 - Sachin (node_2002)
+- PORT 2003 - Bains (miner in this case) (node_2003)
 
 
 And run them concurrently in three parallel consoles and checked it using postman.
