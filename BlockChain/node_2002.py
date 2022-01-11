@@ -73,7 +73,7 @@ class Blockchain:
         longest_chain = None
         max_length = len(self.chain)
         for nodes in network:
-            response = requests.get(f'http://{node}/get_chain')
+            response = requests.get(f'http://{nodes}/get_chain')
             if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
@@ -121,9 +121,9 @@ def mine_block():
 def add_transaction():
     json = request.get_json()
     transaction_keys = {'sender','reciever','amt'}
-    if not all(key in json for keys in transaction_keys):
+    if not all(key in json for key in transaction_keys):
         return 'not all elements of the transaction are present', 400
-    index = bainchain.add_transaction(json['sender'], json['reciever'], json['amt'])
+    index = bainschain.add_transaction(json['sender'], json['reciever'], json['amt'])
     response = {'message': f'The transanction is successful and recievd in the block {index}'}
     return jsonify(response), 201
 
